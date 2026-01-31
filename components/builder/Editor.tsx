@@ -1064,18 +1064,26 @@ function ComponentInspector({
 
       return (
         <div className="inspector-stack">
-          <button className="btn btn-ghost" type="button" onClick={() => setGalleryOpen(true)}>
+          <button
+            className="btn btn-ghost"
+            type="button"
+            onClick={() => setGalleryOpen(true)}
+          >
             Add from media library
           </button>
           <div className="inspector-gallery-grid">
             {galleryItems.map((item) => (
               <div key={item.id} className="inspector-gallery-item">
-                <img src={item.url} alt={item.alt ?? item.title ?? ""} />
+                <img src={item.url} alt={item.alt ?? item.title ?? ''} />
                 <button
                   className="btn btn-ghost btn-sm btn-danger"
                   type="button"
                   onClick={() =>
-                    onUpdate({ items: galleryItems.filter((entry) => entry.id !== item.id) })
+                    onUpdate({
+                      items: galleryItems.filter(
+                        (entry) => entry.id !== item.id,
+                      ),
+                    })
                   }
                 >
                   Remove
@@ -1090,7 +1098,9 @@ function ComponentInspector({
               min={1}
               max={8}
               value={columns}
-              onChange={(event) => onUpdate({ columns: parseNumberInput(event.target.value) })}
+              onChange={(event) =>
+                onUpdate({ columns: parseNumberInput(event.target.value) })
+              }
             />
           </label>
           <label className="inspector-field">
@@ -1100,7 +1110,25 @@ function ComponentInspector({
               min={0}
               max={120}
               value={gap}
-              onChange={(event) => onUpdate({ gap: parseNumberInput(event.target.value) })}
+              onChange={(event) =>
+                onUpdate({ gap: parseNumberInput(event.target.value) })
+              }
+            />
+          </label>
+          <label className="inspector-field">
+            Border Radius (px)
+            <input
+              type="number"
+              min={0}
+              max={50}
+              value={
+                typeof component.props.borderRadius === 'number'
+                  ? component.props.borderRadius
+                  : 0
+              }
+              onChange={(event) =>
+                onUpdate({ borderRadius: parseNumberInput(event.target.value) })
+              }
             />
           </label>
           <MediaLibraryModal
@@ -1119,7 +1147,7 @@ function ComponentInspector({
                   fileType: item.fileType,
                   size: item.size,
                   createdAt: item.createdAt,
-                })
+                }),
               );
               onUpdate({ items: Array.from(merged.values()) });
               setGalleryOpen(false);
