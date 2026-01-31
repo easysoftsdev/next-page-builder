@@ -1,5 +1,7 @@
 import { headers } from "next/headers";
+import Link from 'next/link';
 import { PageRenderer } from "../../../components/renderer/Renderer";
+import { LanguageSwitcher } from '../../../components/LanguageSwitcher';
 import type { PageSchema } from "../../../types/builder";
 
 export default async function PageView({
@@ -18,14 +20,25 @@ export default async function PageView({
 
   return (
     <main className="page-view">
+      <div className="page-top-bar">
+        <Link href="/" className="btn btn-sm btn-ghost">
+          Home
+        </Link>
+        <div className="page-top-bar-right">
+          <LanguageSwitcher />
+          <a
+            className="btn btn-sm"
+            href={`/editor?slug=${encodeURIComponent(slug)}`}
+          >
+            Edit Page
+          </a>
+        </div>
+      </div>
       <header className="page-header">
         <div>
           <p className="kicker">Rendered Page</p>
           <h1>{data.page.title ?? slug}</h1>
         </div>
-        <a className="btn" href={`/editor?slug=${encodeURIComponent(slug)}`}>
-          Edit Page
-        </a>
       </header>
       <PageRenderer page={data.page} />
     </main>

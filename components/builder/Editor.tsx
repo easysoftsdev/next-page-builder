@@ -22,6 +22,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { BuilderComponent, PageSchema } from "../../types/builder";
+import { useLanguage } from '../../lib/language-context';
 import {
   addColumn,
   addComponent,
@@ -98,6 +99,7 @@ const sortableId = (type: DragKind, id: string) => `${type}:${id}`;
 
 export function Editor({ slug }: { slug: string }) {
   const dispatch = useAppDispatch();
+  const { currentLanguage, setCurrentLanguage, languages } = useLanguage();
   const page = useAppSelector((state) => state.builder.present);
   const past = useAppSelector((state) => state.builder.past);
   const future = useAppSelector((state) => state.builder.future);
@@ -121,28 +123,33 @@ export function Editor({ slug }: { slug: string }) {
   useEffect(() => {
     let ignore = false;
     async function load() {
-      setStatus("Loading...");
-      const response = await fetch(`/api/page?slug=${encodeURIComponent(slug)}`);
+      setStatus('Loading...');
+      const response = await fetch(
+        `/api/page?slug=${encodeURIComponent(slug)}&lang=${encodeURIComponent(currentLanguage)}`,
+      );
       const data = (await response.json()) as { page: PageSchema };
       if (!ignore) {
         dispatch(setPage(data.page));
         dispatch(clearSelection());
-        setStatus("Loaded");
+        setStatus('Loaded');
       }
     }
-    load().catch(() => setStatus("Failed to load"));
+    load().catch(() => setStatus('Failed to load'));
     return () => {
       ignore = true;
     };
-  }, [dispatch, slug]);
+  }, [dispatch, slug, currentLanguage]);
 
   async function save() {
     setStatus("Saving...");
-    const response = await fetch(`/api/page?slug=${encodeURIComponent(slug)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(page),
-    });
+    const response = await fetch(
+      `/api/page?slug=${encodeURIComponent(slug)}&lang=${encodeURIComponent(currentLanguage)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(page),
+      },
+    );
     if (response.ok) {
       setStatus("Saved");
     } else {
@@ -410,9 +417,20 @@ export function Editor({ slug }: { slug: string }) {
           <label className="toolbar-field">
             Page Title
             <input
-              value={page.title ?? ""}
-              onChange={(event) => dispatch(updatePageMeta({ title: event.target.value }))}
+              value={page.title ?? ''}
+              onChange={(event) =>
+                dispatch(updatePageMeta({ title: event.target.value }))
+              }
               placeholder="Untitled Page"
+            />
+          </label>
+          <label className="toolbar-field">
+            Slug
+            <input
+              value={slug}
+              readOnly
+              placeholder="Page slug"
+              title="Slug is set from admin. Edit from /admin/pages"
             />
           </label>
           <button className="btn" onClick={() => dispatch(addSection())}>
@@ -424,15 +442,37 @@ export function Editor({ slug }: { slug: string }) {
           <span className="status-pill">{status}</span>
         </div>
         <div className="editor-toolbar-group">
-          <button className="btn btn-ghost btn-sm" onClick={() => dispatch(undo())} disabled={history.past.length === 0}>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => dispatch(undo())}
+            disabled={history.past.length === 0}
+          >
             Undo
           </button>
-          <button className="btn btn-ghost btn-sm" onClick={() => dispatch(redo())} disabled={history.future.length === 0}>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => dispatch(redo())}
+            disabled={history.future.length === 0}
+          >
             Redo
           </button>
-          <Link className="btn btn-ghost" href={`/page/${encodeURIComponent(slug)}`}>
+          <Link
+            className="btn btn-ghost"
+            href={`/page/${encodeURIComponent(slug)}`}
+          >
             View Page
           </Link>
+          <select
+            value={currentLanguage}
+            onChange={(e) => setCurrentLanguage(e.target.value)}
+            className="language-select"
+          >
+            {languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.nativeName} ({lang.code.toUpperCase()})
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -443,20 +483,34 @@ export function Editor({ slug }: { slug: string }) {
         onDragEnd={handleDragEnd}
       >
         <div className="editor-body">
-          <div className="editor-canvas" onClick={() => dispatch(clearSelection())}>
-            <SortableContext items={sectionIds} strategy={verticalListSortingStrategy}>
+          <div
+            className="editor-canvas"
+            onClick={() => dispatch(clearSelection())}
+          >
+            <SortableContext
+              items={sectionIds}
+              strategy={verticalListSortingStrategy}
+            >
               {page.sections.map((section, sectionIndex) => (
                 <div key={section.id}>
                   <SectionDropZone index={sectionIndex} />
-                <SortableSection
-                  section={section}
-                  isCollapsed={selection.collapsedSectionIds.includes(section.id)}
-                  onToggleCollapse={() => dispatch(toggleSectionCollapse({ sectionId: section.id }))}
-                  onAddRow={() => dispatch(addRow({ sectionId: section.id }))}
-                  onDeleteSection={() => dispatch(deleteSection({ sectionId: section.id }))}
-                >
+                  <SortableSection
+                    section={section}
+                    isCollapsed={selection.collapsedSectionIds.includes(
+                      section.id,
+                    )}
+                    onToggleCollapse={() =>
+                      dispatch(toggleSectionCollapse({ sectionId: section.id }))
+                    }
+                    onAddRow={() => dispatch(addRow({ sectionId: section.id }))}
+                    onDeleteSection={() =>
+                      dispatch(deleteSection({ sectionId: section.id }))
+                    }
+                  >
                     <SortableContext
-                      items={section.rows.map((row) => sortableId("row", row.id))}
+                      items={section.rows.map((row) =>
+                        sortableId('row', row.id),
+                      )}
                       strategy={verticalListSortingStrategy}
                     >
                       {section.rows.map((row) => (
@@ -465,11 +519,17 @@ export function Editor({ slug }: { slug: string }) {
                           row={row}
                           sectionId={section.id}
                           columnCount={row.columns.length}
-                          onAddColumn={() => dispatch(addColumn({ rowId: row.id }))}
-                          onDeleteRow={() => dispatch(deleteRow({ rowId: row.id }))}
+                          onAddColumn={() =>
+                            dispatch(addColumn({ rowId: row.id }))
+                          }
+                          onDeleteRow={() =>
+                            dispatch(deleteRow({ rowId: row.id }))
+                          }
                         >
                           <SortableContext
-                            items={row.columns.map((column) => sortableId("column", column.id))}
+                            items={row.columns.map((column) =>
+                              sortableId('column', column.id),
+                            )}
                             strategy={rectSortingStrategy}
                           >
                             {row.columns.map((column) => (
@@ -479,36 +539,63 @@ export function Editor({ slug }: { slug: string }) {
                                 rowId={row.id}
                                 sectionId={section.id}
                                 onSelectColumn={() =>
-                                  dispatch(selectNode({ id: column.id, type: "column" }))
+                                  dispatch(
+                                    selectNode({
+                                      id: column.id,
+                                      type: 'column',
+                                    }),
+                                  )
                                 }
                                 onUpdateSpan={(span) =>
-                                  dispatch(updateColumnSpan({ columnId: column.id, span }))
+                                  dispatch(
+                                    updateColumnSpan({
+                                      columnId: column.id,
+                                      span,
+                                    }),
+                                  )
                                 }
-                                onDeleteColumn={() => dispatch(deleteColumn({ columnId: column.id }))}
+                                onDeleteColumn={() =>
+                                  dispatch(
+                                    deleteColumn({ columnId: column.id }),
+                                  )
+                                }
                               >
-                              <SortableContext
-                                items={column.components.map((component) =>
-                                  sortableId("component", component.id)
-                                )}
-                                strategy={verticalListSortingStrategy}
-                              >
-                                {column.components.map((component) => (
+                                <SortableContext
+                                  items={column.components.map((component) =>
+                                    sortableId('component', component.id),
+                                  )}
+                                  strategy={verticalListSortingStrategy}
+                                >
+                                  {column.components.map((component) => (
                                     <SortableComponent
                                       key={component.id}
                                       component={component}
                                       columnId={column.id}
                                       rowId={row.id}
                                       sectionId={section.id}
-                                      isSelected={selection.selectedId === component.id}
-                                      onSelect={() =>
-                                        dispatch(selectNode({ id: component.id, type: "component" }))
+                                      isSelected={
+                                        selection.selectedId === component.id
                                       }
-                                      onDelete={() => dispatch(deleteComponent({ componentId: component.id }))}
+                                      onSelect={() =>
+                                        dispatch(
+                                          selectNode({
+                                            id: component.id,
+                                            type: 'component',
+                                          }),
+                                        )
+                                      }
+                                      onDelete={() =>
+                                        dispatch(
+                                          deleteComponent({
+                                            componentId: component.id,
+                                          }),
+                                        )
+                                      }
                                     />
-                                ))}
-                                <ColumnEndDrop columnId={column.id} />
-                              </SortableContext>
-                            </SortableColumn>
+                                  ))}
+                                  <ColumnEndDrop columnId={column.id} />
+                                </SortableContext>
+                              </SortableColumn>
                             ))}
                             <RowEndDrop rowId={row.id} />
                           </SortableContext>
@@ -529,7 +616,12 @@ export function Editor({ slug }: { slug: string }) {
               <ComponentInspector
                 component={selectedComponent}
                 onUpdate={(patch) =>
-                  dispatch(updateComponentProps({ componentId: selectedComponent.id, patch }))
+                  dispatch(
+                    updateComponentProps({
+                      componentId: selectedComponent.id,
+                      patch,
+                    }),
+                  )
                 }
               />
             ) : (
@@ -546,7 +638,9 @@ export function Editor({ slug }: { slug: string }) {
           </aside>
         </div>
         <DragOverlay>
-          {activeDrag ? <div className="dnd-overlay">{activeDrag.label}</div> : null}
+          {activeDrag ? (
+            <div className="dnd-overlay">{activeDrag.label}</div>
+          ) : null}
         </DragOverlay>
       </DndContext>
     </div>

@@ -1,8 +1,15 @@
 import Link from "next/link";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
 export default function Home() {
   return (
     <main className="landing">
+      <div className="landing-top-bar">
+        <Link href="/admin/languages" className="btn btn-sm btn-ghost">
+          Language Admin
+        </Link>
+        <LanguageSwitcher />
+      </div>
       <header className="landing-hero">
         <p className="kicker">Mini Elementor</p>
         <h1>JSON-first drag & drop page builder.</h1>

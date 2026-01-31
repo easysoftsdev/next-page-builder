@@ -6,13 +6,57 @@ datasource db {
   provider = "postgresql"
 }
 
-model Page {
+model Language {
   id        String   @id @default(cuid())
-  slug      String   @unique
-  schema    Json
-  version   Int      @default(1)
-  updatedAt DateTime @updatedAt
+  code      String   @unique // e.g., "en", "bn", "zh"
+  name      String   // e.g., "English", "Bengali", "Chinese"
+  nativeName String  // e.g., "English", "বাংলা", "中文"
+  isDefault Boolean  @default(false) // One language should be default
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  pages     PageTranslation[]
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  schema      Json?    // Keep for backwards compatibility, will be migrated
+  isPublished Boolean  @default(false)
+  status      String   @default("draft") // draft, published, archived
+  createdBy   String?  // User ID or name who created the page
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  translations PageTranslation[]
+  
+  @@index([slug])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model PageTranslation {
+  id          String   @id @default(cuid())
+  pageId      String
+  languageId  String
+  schema      Json     // The actual page content/layout
+  title       String?
+  metaDescription String?
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  page        Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  
+  // Ensure one translation per page per language
+  @@unique([pageId, languageId])
+  @@index([pageId])
+  @@index([languageId])
 }
 
 model MediaGallery {
