@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mini Elementor — Next.js Drag & Drop Page Builder
 
-## Getting Started
+A JSON-first page builder with Section → Row → Column → Component layout, drag & drop editing, undo/redo history, and server-rendered output.
 
-First, run the development server:
+## Quick start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
+- Editor: `http://localhost:3000/editor`
+- Rendered page: `http://localhost:3000/page/home`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Prisma setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Copy `.env.example` to `.env` and set `DATABASE_URL`.
+2. Run `npx prisma generate` (uses `prisma.config.ts`).
+3. Run `npx prisma migrate dev --name init`.
 
-## Learn More
+Prisma 7 uses the Postgres adapter (`@prisma/adapter-pg`) and requires `DATABASE_URL`.
 
-To learn more about Next.js, take a look at the following resources:
+## Core ideas
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- JSON is the source of truth.
+- Editor dispatches Redux actions to mutate JSON.
+- Renderer is pure JSON → UI.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `project_onboarding.md` for full details.
