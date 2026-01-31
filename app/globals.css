@@ -193,10 +193,12 @@ textarea {
 }
 
 .toolbar-field {
-  display: grid;
+  display: flex;
   gap: 6px;
   font-size: 12px;
-  color: #9ca3af;
+  color: #9ca3af; 
+  justify-content: center;
+  align-items: center;
 }
 
 .toolbar-field input {

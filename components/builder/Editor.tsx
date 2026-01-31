@@ -60,12 +60,16 @@ import {
 } from "lucide-react";
 
 const COMPONENT_TYPES: BuilderComponent["type"][] = ["text", "button", "image", "gallery", "spacer"];
-const COMPONENT_ICONS: Record<BuilderComponent["type"], JSX.Element> = {
-  text: <Type size={16} />,
-  button: <Square size={16} />,
-  image: <Image size={16} />,
-  gallery: <Images size={16} />,
-  spacer: <ArrowDownUp size={16} />,
+
+const getComponentIcon = (type: BuilderComponent['type']) => {
+  const icons: Record<BuilderComponent['type'], React.ReactNode> = {
+    text: <Type size={16} />,
+    button: <Square size={16} />,
+    image: <Image size={16} />,
+    gallery: <Images size={16} />,
+    spacer: <ArrowDownUp size={16} />,
+  };
+  return icons[type];
 };
 
 type DragKind =
@@ -558,11 +562,11 @@ function PaletteItem({ type }: { type: BuilderComponent["type"] }) {
   return (
     <div
       ref={setNodeRef}
-      className={`component-palette-item${isDragging ? " is-dragging" : ""}`}
+      className={`component-palette-item${isDragging ? ' is-dragging' : ''}`}
       {...attributes}
       {...listeners}
     >
-      <span className="palette-icon">{COMPONENT_ICONS[type]}</span>
+      <span className="palette-icon">{getComponentIcon(type)}</span>
       <span className="palette-label">{type}</span>
     </div>
   );
@@ -806,7 +810,7 @@ function SortableComponent({
   return (
     <div ref={setNodeRef} style={style} className="editor-component-slot">
       <div
-        className={`editor-component-card${isSelected ? " selected" : ""}`}
+        className={`editor-component-card${isSelected ? ' selected' : ''}`}
         {...attributes}
         {...listeners}
         onClick={(event) => {
@@ -816,7 +820,9 @@ function SortableComponent({
       >
         <div className="editor-component-label">
           <div className="editor-component-meta">
-            <span className="editor-component-icon">{COMPONENT_ICONS[component.type]}</span>
+            <span className="editor-component-icon">
+              {getComponentIcon(component.type)}
+            </span>
             <span>{component.type}</span>
           </div>
           <button

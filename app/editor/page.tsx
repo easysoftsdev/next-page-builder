@@ -1,4 +1,4 @@
-import { Editor } from "../../components/builder/Editor";
+import { EditorClient } from '../../components/builder/EditorClient';
 
 export default async function EditorPage({
   searchParams,
@@ -6,6 +6,6 @@ export default async function EditorPage({
   searchParams?: Promise<{ slug?: string }>;
 }) {
   const resolvedSearchParams = (await searchParams) ?? {};
-  const slug = resolvedSearchParams.slug ?? "home";
-  return <Editor slug={slug} />;
+  const slug = resolvedSearchParams.slug ?? 'home';
+  return <EditorClient slug={slug} />;
 }

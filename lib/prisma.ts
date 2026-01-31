@@ -18,7 +18,9 @@ const hasMediaGalleryModel =
   cached && typeof cached === "object"
     ? Boolean((cached as { _runtimeDataModel?: { models?: Record<string, unknown> } })._runtimeDataModel?.models?.MediaGallery)
     : false;
-const prisma = hasMediaGalleryModel ? cached : new PrismaClient({ adapter });
+const prisma: PrismaClient = hasMediaGalleryModel
+  ? (cached as PrismaClient)
+  : new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== "production") {
   global.prisma = prisma;
