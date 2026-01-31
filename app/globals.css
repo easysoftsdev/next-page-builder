@@ -362,7 +362,15 @@ textarea {
 }
 
 .editor-column-header input {
-  width: 54px;
+  width: 54px; 
+  border-radius: 5px;
+  border: 1px solid #d9e4f3;
+  padding: 3px 5px;
+}
+.editor-column-header input:focus-visible { 
+  outline: none;
+  background-color: #c6eeff;
+  border-color: #92d4f0;
 }
 
 .editor-component-list {
