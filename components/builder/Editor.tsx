@@ -611,22 +611,32 @@ export function Editor({ slug }: { slug: string }) {
           </div>
 
           <aside className="editor-inspector">
-            <h3>Inspector</h3>
-            {selectedComponent ? (
-              <ComponentInspector
-                component={selectedComponent}
-                onUpdate={(patch) =>
-                  dispatch(
-                    updateComponentProps({
-                      componentId: selectedComponent.id,
-                      patch,
-                    }),
-                  )
-                }
-              />
-            ) : (
-              <p className="muted">Select a component to edit its props.</p>
-            )}
+            <div className="inspector-palette">
+              <h3 className="mb20">Inspector</h3>
+              {selectedComponent ? (
+                <ComponentInspector
+                  component={selectedComponent}
+                  onUpdate={(patch) =>
+                    dispatch(
+                      updateComponentProps({
+                        componentId: selectedComponent.id,
+                        patch,
+                      }),
+                    )
+                  }
+                />
+              ) : (
+                <div className="inspector-placeholder" aria-hidden="true">
+                  <div className="inspector-placeholder-title" />
+                  <div className="inspector-placeholder-line" />
+                  <div className="inspector-placeholder-line" />
+                  <div className="inspector-placeholder-line" />
+                  <div className="inspector-placeholder-block" />
+                  <div className="inspector-placeholder-line" />
+                  <div className="inspector-placeholder-line short" />
+                </div>
+              )}
+            </div>
             <div className="component-palette">
               <h4>Components</h4>
               <div className="component-palette-list">

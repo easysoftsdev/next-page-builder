@@ -251,9 +251,9 @@ textarea {
 
 .editor-body {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
-  padding: 16px 20px 24px;
+  padding: 16px 20px 24px 320px;
   align-items: start;
 }
 
@@ -508,31 +508,88 @@ textarea {
 
 .editor-inspector {
   background: var(--sidebar);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 0;
+  padding: 10px;
   border: 1px solid #111827;
   box-shadow: none;
   height: fit-content;
   display: grid;
   gap: 16px;
-  align-self: start;
+  align-self: stretch;
   color: var(--sidebar-text);
-  order: -1;
-  position: sticky;
+  order: 0;
+  position: fixed;
+  left: 0;
   top: 72px;
-  max-height: calc(100vh - 96px);
+  height: calc(100vh - 72px);
+  max-height: calc(100vh - 72px);
+  width: 300px;
   overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #334155 #0b1120;
+  scrollbar-gutter: stable;
+}
+
+.editor-inspector::-webkit-scrollbar {
+  width: 10px;
+}
+
+.editor-inspector::-webkit-scrollbar-track {
+  background: #0b1120;
+  border-radius: 999px;
+}
+
+.editor-inspector::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #475569, #1f2937);
+  border-radius: 999px;
+  border: 2px solid #0b1120;
+}
+
+.editor-inspector::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #64748b, #334155);
 }
 
 .editor-inspector h3,
-.editor-inspector h4 {
-  margin: 0;
+.editor-inspector h4 { 
   color: #f9fafb;
   font-weight: 600;
 }
 
 .editor-inspector .muted {
   color: var(--sidebar-muted);
+}
+
+.inspector-placeholder {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  border: 1px solid #253963;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.inspector-placeholder-title {
+  height: 18px;
+  width: 60%;
+  border-radius: 999px;
+  background: #1f2937;
+}
+
+.inspector-placeholder-line {
+  height: 12px;
+  border-radius: 999px;
+  background: #1f2937;
+}
+
+.inspector-placeholder-line.short {
+  width: 70%;
+}
+
+.inspector-placeholder-block {
+  height: 80px;
+  border-radius: 12px;
+  background: #111827;
+  border: 1px solid #1f2937;
 }
 
 .inspector-field {
@@ -1662,4 +1719,8 @@ textarea {
   .actions-cell {
     flex-direction: column;
   }
+}
+
+.mb20{
+  margin-bottom:20px;
 }
